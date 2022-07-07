@@ -27,10 +27,11 @@ defmodule SimpleBayes.Trainer.TokenParser do
       }
   """
   def parse(data, string, opts) do
-    tokens = string
-             |> Tokenizer.tokenize()
-             |> Tokenizer.filter_out(opts[:stop_words])
-             |> TokenStemmer.stem(opts[:stem])
+    tokens =
+      string
+      |> Tokenizer.tokenize(opts)
+      |> Tokenizer.filter_out(opts[:stop_words])
+      |> TokenStemmer.stem(opts[:stem])
 
     data = %{data | tokens: accumulate(data.tokens, tokens, opts)}
 

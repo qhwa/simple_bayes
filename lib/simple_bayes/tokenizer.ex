@@ -25,7 +25,12 @@ defmodule SimpleBayes.Tokenizer do
       iex> SimpleBayes.Tokenizer.tokenize(~s(fo-o's ba_r"ed.))
       ~w(fo-o's ba_r"ed)
   """
-  def tokenize(string) do
+  def tokenize(string, opts \\ []) do
+    tokenizer = Keyword.get(opts, :tokenizer, &default_tokenize/1)
+    tokenizer.(string)
+  end
+
+  def default_tokenize(string) do
     string
     |> String.downcase()
     |> String.replace(~r/[^0-9a-zA-Z _\-'"]+/, "")
@@ -47,7 +52,7 @@ defmodule SimpleBayes.Tokenizer do
       ["foo", "bar"]
   """
   def filter_out(list, filter_list) do
-    Enum.reject list, &(&1 in filter_list)
+    Enum.reject(list, &(&1 in filter_list))
   end
 
   @doc """
@@ -67,7 +72,7 @@ defmodule SimpleBayes.Tokenizer do
   def accumulate(map, list, acc_size) do
     list
     |> map_values(acc_size)
-    |> Map.merge(map, fn (_k, v1, v2) -> v1 + v2 end)
+    |> Map.merge(map, fn _k, v1, v2 -> v1 + v2 end)
   end
 
   @doc """
@@ -82,7 +87,7 @@ defmodule SimpleBayes.Tokenizer do
       %{cat: 2, dog: 1}
   """
   def map_values(list, value) do
-    Enum.reduce(list, %{}, fn (k, acc) ->
+    Enum.reduce(list, %{}, fn k, acc ->
       v = if acc[k], do: value + acc[k], else: value
 
       Map.put(acc, k, v)
